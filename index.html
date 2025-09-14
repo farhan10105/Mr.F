@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mr. Fries</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#fff8f0;color:#333}
+header{background:#ff7f50;color:#fff;padding:1rem;text-align:center;display:flex;flex-direction:column;align-items:center}
+header img{height:80px;margin-bottom:10px;border-radius:12px}
+h1{margin:0;font-size:1.8rem}
+.container{max-width:900px;margin:auto;padding:1rem}
+.card{background:#ffe5b4;margin:1rem 0;padding:1rem;border-radius:12px}
+ul{list-style:none;padding:0}
+li{background:#fff;padding:.5rem;border-radius:8px;margin:.3rem 0;display:flex;align-items:center;justify-content:space-between}
+li img{width:50px;height:50px;border-radius:8px;margin-right:10px;object-fit:cover}
+.qty-control{display:flex;align-items:center;gap:5px}
+.qty-control button{padding:.3rem .6rem;border:none;border-radius:6px;background:#ff7f50;color:#fff;cursor:pointer}
+.qty-control span{min-width:20px;text-align:center;display:inline-block}
+.btn{background:#ff7f50;color:#fff;border:none;padding:.7rem 1rem;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-block;margin:.3rem 0;font-size:1rem}
+.btn:hover{background:#e5673f}
+footer{text-align:center;margin:2rem 0;font-size:.9rem;color:#555}
+input,select,textarea{padding:.6rem;border:1px solid #ccc;border-radius:6px;width:100%;margin:.3rem 0;font-size:1rem}
+textarea{min-height:60px;resize:vertical}
+.remove-btn{background:#f55;color:#fff;border:none;padding:.3rem .6rem;border-radius:6px;cursor:pointer;margin-left:.5rem}
+#admin-panel,#login-box{display:none}
+
+/* Splash Screen */
+#splash{position:fixed;top:0;left:0;width:100%;height:100%;background:#ff7f50;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:2rem;z-index:9999}
+#splash p{font-size:1.2rem;margin-top:1rem}
+#splash.fade{opacity:0;transition:opacity 1s ease-out;pointer-events:none}
+
+/* Responsive */
+@media(max-width:600px){header h1{font-size:1.5rem}.card{padding:.8rem}.btn{width:100%;padding:.8rem;font-size:1rem}input,select,textarea{font-size:1rem}li{flex-direction:column;align-items:flex-start}}
+
+/* WhatsApp Floating Button Styles */
+.whatsapp-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 60px;
+  height: 60px;
+  background-color: #25D366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  text-decoration: none;
+  animation: pulse 2s infinite;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.whatsapp-btn img {
+  width: 35px;
+  height: 35px;
+}
+
+.whatsapp-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div id="splash">
+  <h1>🍟 Mr. Fries</h1>
+  <p>Welcome to the Fries World!</p>
+</div>
+
+<header>
+  <img src="https://images-platform.99static.com/akEMth1s7KnMvZNbIWngZSFi5j4=/500x500/top/smart/99designs-contests-attachments/26/26024/attachment_26024845" alt="Mr. Fries Logo" style="height: 80px; border-radius: 12px;">
+  <h1>🍟 Mr. Fries</h1>
+  <p>Small D Ground near Donner | Phone: <a href="tel:03018655584" style="color:#fff;text-decoration:underline">03018655584</a></p>
+  <p>Owner: Akhter Rasool Sb</p>
+  <button class="btn" onclick="showLogin()">Admin</button>
+</header>
+
+<div class="container">
+
+  <!-- Menu Card -->
+  <div class="card">
+    <h2>Menu</h2>
+    <ul id="menu-list"></ul>
+  </div>
+
+  <!-- Calculator Card -->
+  <div class="card" id="calc">
+    <h2>🧾 Calculator</h2>
+    <p>Subtotal: <b>PKR <span id="subtotal">0</span></b></p>
+    <p>Total (after discount): <b>PKR <span id="final">0</span></b></p>
+  </div>
+
+  <!-- Discount Card -->
+  <div class="card" id="discount-card">
+    <h2>Discount</h2>
+    <p>Orders above PKR 1500 get <b>10% Discount</b> 🎉</p>
+    <p>Discount Amount: <b>PKR <span id="discount">0</span></b></p>
+  </div>
+
+  <!-- Delivery Card -->
+  <div class="card" id="delivery-card">
+    <h2>Delivery</h2>
+    <p>“Delivery is free for orders within 1 km, or if the subtotal exceeds PKR 1000. Otherwise, an extra PKR 100 is charged per additional kilometer.”.</p>
+  </div>
+
+  <!-- Place Order -->
+  <div class="card">
+    <h2>Place Order</h2>
+    <label>Your Name: <input id="cust-name" type="text"></label>
+    <label>Address/Note: <input id="cust-note" type="text"></label>
+    <button class="btn" onclick="orderWhatsApp()">Order on WhatsApp</button>
+  </div>
+
+  <!-- Login Box -->
+  <div id="login-box" class="card">
+    <h2>Admin Login</h2>
+    <input type="password" id="admin-pass" placeholder="Enter Password">
+    <button class="btn" onclick="checkLogin()">Login</button>
+    <button class="btn" onclick="cancelLogin()">Cancel</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="card">
+    <h2>Admin Panel</h2>
+    <h3>Menu Manager</h3>
+    <ul id="admin-menu-list"></ul>
+    <input id="new-item-name" placeholder="Item name">
+    <input id="new-item-price" type="number" placeholder="Price">
+    <button class="btn" onclick="addItem()">Add Item</button>
+    <hr>
+    <h3>Reviews Manager</h3>
+    <div id="admin-reviews"></div>
+    <hr>
+    <h3>Change Password</h3>
+    <input type="password" id="new-pass" placeholder="New Password">
+    <button class="btn" onclick="changePassword()">Change</button>
+    <hr>
+    <button class="btn" onclick="closeAdmin()">Close Admin</button>
+  </div>
+
+</div>
+
+<footer>&copy; 2025 Mr. Fries</footer>
+
+<!-- Modern WhatsApp Floating Button -->
+<a href="https://wa.me/923018655584" target="_blank" class="whatsapp-btn">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+</a>
+
+<script>
+const defaultData={
+  menu:[
+    {name:"Fries",price:200,img:"https://www.awesomecuisine.com/wp-content/uploads/2009/05/french-fries.jpg"},
+    {name:"Masala Fries",price:250,img:"https://www.chefhasti.com/wp-content/uploads/2020/06/COVER-1-1-scaled.jpg"},
+    {name:"Samosi (Aloo wali)",price:50,img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSShY9wNKO1_Lqq7f1z6J2PDoMETTvP4jEeVw&s"},
+    {name:"Samosi (Chicken wali)",price:70,img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEesYI7DKtkmEKp-w-2ddNbOOQKL_oS7-fMg&s"},
+    {name:"Baysan Fries",price:180,img:"https://food.fnr.sndimg.com/content/dam/images/food/fullset/2016/1/30/0/CCTIF203_Beer-Battered-Fries_s3x4.jpg.rend.hgtvcom.1280.720.suffix/1454347154395.webp"}
+  ],
+  password:"admin123"
+};
+
+let DATA = {...defaultData};
+
+// Render Menu
+function renderMenu(){
+  const ul=document.getElementById("menu-list"); ul.innerHTML="";
+  DATA.menu.forEach((item,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<div style="display:flex;align-items:center"><img src="${item.img}" alt="${item.name}"> ${item.name} - PKR ${item.price}</div>
+    <div class="qty-control">
+      <button onclick="changeQty(${i},-1)">-</button>
+      <span id="qty-${i}">0</span>
+      <button onclick="changeQty(${i},1)">+</button>
+    </div>`;
+    ul.appendChild(li);
+  });
+  updateCalc();
+}
+
+function changeQty(i,val){
+  let sp=document.getElementById("qty-"+i);
+  let q=parseInt(sp.innerText)||0;
+  q+=val; if(q<0) q=0;
+  sp.innerText=q;
+  updateCalc();
+}
+
+// Update Calculator: only Subtotal - Discount
+function updateCalc(){
+  let subtotal=0;
+  DATA.menu.forEach((item,i)=>{
+    let q=parseInt(document.getElementById("qty-"+i).innerText)||0;
+    subtotal += q * item.price;
+  });
+
+  let discount = (subtotal > 1500) ? Math.round(subtotal * 0.10) : 0;
+  let calcTotal = subtotal - discount;
+
+  // Update cards
+  document.getElementById("subtotal").innerText = subtotal.toLocaleString();
+  document.getElementById("final").innerText = calcTotal.toLocaleString();
+  document.getElementById("discount").innerText = discount.toLocaleString();
+}
+
+// WhatsApp Order: delivery excluded
+function orderWhatsApp(){
+  let items=[]; let subtotal=0;
+  DATA.menu.forEach((item,i)=>{
+    let q=parseInt(document.getElementById("qty-"+i).innerText)||0;
+    if(q>0){items.push(`${item.name} x${q} = PKR ${q*item.price}`); subtotal+=q*item.price;}
+  });
+  if(items.length===0){alert("Please select items first");return;}
+
+  let discount = (subtotal > 1500) ? Math.round(subtotal *0.10):0;
+  let total = subtotal - discount;
+
+  let msg=`Name: ${document.getElementById("cust-name").value}
+\n\nOrder:\n${items.join("\n")}
+\n\nSubtotal: PKR ${subtotal.toLocaleString()}
+\nDiscount: PKR ${discount.toLocaleString()}
+\nTotal: PKR ${total.toLocaleString()}
+\n\nAddress/Note: ${document.getElementById("cust-note").value}`;
+
+  let phone="923018655584";
+  window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg),"_blank");
+}
+
+// Admin functions
+function showLogin(){document.getElementById("login-box").style.display="block";}
+function cancelLogin(){document.getElementById("login-box").style.display="none";}
+function checkLogin(){
+  let p=document.getElementById("admin-pass").value;
+  if(p===DATA.password){document.getElementById("login-box").style.display="none"; document.getElementById("admin-panel").style.display="block"; renderAdminMenu();}
+  else alert("Wrong Password");
+}
+function closeAdmin(){document.getElementById("admin-panel").style.display="none";}
+function changePassword(){let np=document.getElementById("new-pass").value.trim(); if(np.length<4){alert("Password too short");return;} DATA.password=np; alert("Password Changed!"); document.getElementById("new-pass").value="";}
+
+function renderAdminMenu(){
+  const ul=document.getElementById("admin-menu-list"); ul.innerHTML="";
+  DATA.menu.forEach((item,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML=`${item.name} - PKR ${item.price} <button class="remove-btn" onclick="removeItem(${i})">X</button>`;
+    ul.appendChild(li);
+  });
+}
+function addItem(){
+  let n=document.getElementById("new-item-name").value.trim();
+  let p=+document.getElementById("new-item-price").value;
+  if(!n||!p){alert("Enter name & price");return;}
+  DATA.menu.push({name:n,price:p,img:"https://via.placeholder.com/50x50.png?text=Item"});
+  renderMenu(); renderAdminMenu();
+  document.getElementById("new-item-name").value=""; document.getElementById("new-item-price").value="";
+}
+function removeItem(i){DATA.menu.splice(i,1); renderMenu(); renderAdminMenu();}
+
+// Splash hide
+window.addEventListener("load",()=>{setTimeout(()=>{document.getElementById("splash").classList.add("fade");},2500);});
+
+renderMenu();
+</script>
+</body>
+</html>
